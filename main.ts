@@ -20,7 +20,6 @@ export default class SimpleJsonPlugin extends Plugin {
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				try {
 					const input = editor.getSelection()
-					console.log('format JSON', input);
 					if (input) {
 						const res = JSON.parse(input)
 
@@ -37,15 +36,17 @@ export default class SimpleJsonPlugin extends Plugin {
 			id: 'simple-json-minify-json',
 			name: 'Minify JSON',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
-				let input = editor.getSelection()
-				console.log('minify JSON', input);
-				if (input) {
-					input = this.removeNewLines(input)
-					console.log('input', input)
-					const res = JSON.stringify(input)
+				try {
+					let input = editor.getSelection()
+					if (input) {
+						input = this.removeNewLines(input)
+						const res = JSON.stringify(input)
 
-					console.log('res', res)
-					editor.replaceSelection(res);
+						editor.replaceSelection(res);
+					}
+				} catch(err) {
+					console.error('Error while minify JSON:', err)
+					new Notice('Cannot minify JSON string');
 				}
 			}
 		});
@@ -64,8 +65,6 @@ export default class SimpleJsonPlugin extends Plugin {
 	}
 
 	removeNewLines(str: string) {
-		let res = str
-		res.replace(/([\r\n]+)/g, '')
-		return res
+		return str.replace(/([\r\n]+)/g, '')
 	}
 }

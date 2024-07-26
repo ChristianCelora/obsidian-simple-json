@@ -15,14 +15,32 @@ export default class SimpleJsonPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.addCommand({
-			id: 'simple-json-format-json',
-			name: 'Format JSON',
+			id: 'simple-json-beautify-json',
+			name: 'Beautify JSON',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				try {
 					const input = editor.getSelection()
 					if (input) {
-						const res = JSON.parse(input)
+						let res = JSON.parse(input)
+						res = JSON.stringify(res, null, 2)
+						editor.replaceSelection(res);
+					}
+				} catch(err) {
+					console.error('Error while parsing JSON:', err)
+					new Notice('Cannot format JSON string');
+				}
+			}
+		});
 
+		this.addCommand({
+			id: 'simple-json-minify-json',
+			name: 'Minify JSON',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
+				try {
+					const input = editor.getSelection()
+					if (input) {
+						let res = JSON.parse(input)
+						res = JSON.stringify(res)
 						editor.replaceSelection(res);
 					}
 				} catch(err) {
@@ -33,20 +51,19 @@ export default class SimpleJsonPlugin extends Plugin {
 		});
 		
 		this.addCommand({
-			id: 'simple-json-minify-json',
-			name: 'Minify JSON',
+			id: 'simple-json-stringify-json',
+			name: 'Stringify JSON',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
 				try {
 					let input = editor.getSelection()
 					if (input) {
-						input = this.removeNewLines(input)
+						input = this.removeSpacesAndNewLines(input)
 						const res = JSON.stringify(input)
-
 						editor.replaceSelection(res);
 					}
 				} catch(err) {
 					console.error('Error while minify JSON:', err)
-					new Notice('Cannot minify JSON string');
+					new Notice('Cannot stringify JSON string');
 				}
 			}
 		});
@@ -64,7 +81,7 @@ export default class SimpleJsonPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	removeNewLines(str: string) {
-		return str.replace(/([\r\n]+)/g, '')
+	removeSpacesAndNewLines(str: string) {
+		return str.replace(/([\r\n ]+)/g, '')
 	}
 }
